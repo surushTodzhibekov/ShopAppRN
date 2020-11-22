@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Text, ScrollView, TextInput } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import HeaderButton from "../../components/UI/HeaderButton";
+import * as productActions from "../../store/actions/products";
 
 function EditProductScreen(props) {
   const prodId = props.route.params ? props.route.params.productId : null;
   const editedProduct = useSelector((state) =>
     state.products.userProducts.find((prod) => prod.id === prodId)
   );
+  const dispatch = useDispatch();
 
   const [title, setTitle] = useState(editedProduct ? editedProduct.title : "");
   const [imageUrl, setImageUrl] = useState(
@@ -21,8 +23,16 @@ function EditProductScreen(props) {
   );
 
   const submitHandler = useCallback(() => {
-    console.log("Submit!");
-  }, []);
+    if (editedProduct) {
+      dispatch(
+        productActions.updateProduct(prodId, title, description, imageUrl)
+      );
+    } else {
+      dispatch(
+        productActions.createProduct(title, description, imageUrl, +price)
+      );
+    }
+  }, [editedProduct, dispatch, prodId, title, description, imageUrl, price]);
 
   useEffect(() => {
     props.navigation.setParams({ submit: submitHandler });
@@ -36,7 +46,7 @@ function EditProductScreen(props) {
           <TextInput
             style={styles.input}
             value={title}
-            onChange={(text) => setTitle(text)}
+            onChangeText={(text) => setTitle(text)}
           />
         </View>
         <View style={styles.formControl}>
@@ -44,7 +54,7 @@ function EditProductScreen(props) {
           <TextInput
             style={styles.input}
             value={imageUrl}
-            onChange={(text) => setImageUrl(text)}
+            onChangeText={(text) => setImageUrl(text)}
           />
         </View>
         <View style={styles.formControl}>
@@ -52,7 +62,7 @@ function EditProductScreen(props) {
           <TextInput
             style={styles.input}
             value={price}
-            onChange={(text) => setPrice(text)}
+            onChangeText={(text) => setPrice(text)}
           />
         </View>
         <View style={styles.formControl}>
@@ -60,7 +70,7 @@ function EditProductScreen(props) {
           <TextInput
             style={styles.input}
             value={description}
-            onChange={(text) => setDescription(text)}
+            onChangeText={(text) => setDescription(text)}
           />
         </View>
       </View>
